@@ -25,7 +25,70 @@ impl RomanNumber {
 }
 
 pub fn arab_to_roman(arab_number: u32) -> Result<String, String> {
-    Ok("0".into())
+    // split into number parts with modulus of closest smaller roman number
+    // convert each part to roman
+    // join them together
+    
+
+    // 46 (XLVI) -> [40, 6]
+    // 473 (CDLXXIII) -> [400, 73] -> [400, 50, 23] -> [400, 50, 20, 3]
+    //
+    // 99 -> [50, 40, 9]
+    //  90 - 50 = 40
+    //  99 % 40 = 55
+    // 99 -> [90, 9]
+    //  90 - 10 = 90
+    //  99 % 90 = 9
+
+    let mut result = String::new();
+    let mut remainder = arab_number;
+        let mut i = ARAB_MAP.len();
+        while i > 0{
+            i -= 1;
+            let arab = ARAB_MAP[i] as u32;
+            let roman = ROMAN_LITERALS[i];
+
+            let count = (remainder as f32 / arab as f32).floor() as usize;
+            let rem = remainder % arab;
+    
+            remainder = rem;
+             if count > 3 {
+                result.push(roman);
+                continue;
+            }
+
+            result.push_str(&roman.to_string().repeat(count));
+            if rem == remainder {
+                if i > 0 {
+                    let prev_arab = ARAB_MAP[i-1];
+
+                    let rem1 = remainder % (arab - prev_arab as u32);
+                    let (rem, prev_arab) = if i > 1 {
+                        let prev_prev_arab = ARAB_MAP[i-2];
+                        let rem2 = remainder % (arab - prev_prev_arab as u32);
+
+                        let mut r = (rem1, ROMAN_LITERALS[i-1]);
+                        if rem2 < rem1 {
+                            r = (rem2, ROMAN_LITERALS[i-2]);
+                        }
+                        r
+                    }   else {
+                        (rem1, ROMAN_LITERALS[i-1])
+                    };
+
+                    if rem != remainder {
+                        result.push(prev_arab);
+                        result.push(roman);
+                        remainder = rem;
+                    }
+                }
+                continue;
+            }
+        }
+
+            
+    println!("result for {}: {}", arab_number, result);
+    Ok(result)
 }
 
 /// Converts Roman to Arab
