@@ -1,5 +1,5 @@
 # roman-numerals
-Roman numeral parser, validator and convertor written in Rust.
+Roman to arabic numeral convertor library for Rust .
 
 # Usage:
 
