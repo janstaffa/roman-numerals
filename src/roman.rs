@@ -1,5 +1,5 @@
 use std::fmt;
-const ROMAN_LITERALS: [char; 7] = ['I', 'V', 'X', 'L', 'C', 'D', 'M'];
+const ROMAN_LITERALS: [char; 7] = ['i', 'v', 'x', 'l', 'c', 'd', 'm'];
 const ARAB_MAP: [i32; 7] = [1, 5, 10, 50, 100, 500, 1000];
 
 pub struct RomanNumber {
@@ -9,30 +9,46 @@ pub struct RomanNumber {
 impl RomanNumber {
     /// Converts a string like "XLIX" to a RomanNumber instance
     pub fn from_string(s: &str) -> Result<Self, String> {
+        let s = s.to_lowercase();
         let mut prev_n = 0;
         let mut n_count = 0;
 
         let chars: Vec<char> = s.chars().collect();
         // Check if the string is a valid roman number
         for ch in &chars {
+            let print_ch = ch.to_uppercase();
             if !ROMAN_LITERALS.contains(&ch) {
-                return Err(format!("Invalid input. '{}' is not a roman number.", ch));
+                return Err(format!(
+                    "Invalid input. '{}' is not a roman number.",
+                    print_ch
+                ));
             }
             let n = Self::get_arab(*ch)?;
 
             if n == prev_n {
                 if let 5 | 50 | 500 = n {
-                    return Err(format!("Invalid input. '{}' cannot be repeated.", ch));
+                    return Err(format!("Invalid input. '{}' cannot be repeated.", print_ch));
                 }
                 if n_count >= 3 {
                     return Err(format!(
                         "Invalid input. '{}' was repeated more than 3 times.",
-                        ch
+                        print_ch
                     ));
                 }
                 n_count += 1;
             } else {
-                if n > prev_n {
+                if n > prev_n && prev_n > 0 {
+                    let prev_idx = ARAB_MAP.iter().position(|&i| i == prev_n).unwrap();
+                    let current_idx = ARAB_MAP.iter().position(|&i| i == n).unwrap();
+
+                    if prev_idx + 2 < current_idx {
+                        return Err(format!(
+                            "Invalid input. Cannot substract {} from {}.",
+                            Self::get_roman(prev_n)?.to_uppercase(),
+                            print_ch
+                        ));
+                    }
+
                     if n_count > 1 {
                         return Err(
                             "Invalid input. Cannot substract from a number more than once.".into(),
@@ -152,6 +168,7 @@ impl RomanNumber {
 }
 impl fmt::Display for RomanNumber {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.symbols.iter().collect::<String>())
+        let s: String = self.symbols.iter().collect::<String>().to_uppercase();
+        write!(f, "{}", s)
     }
 }
