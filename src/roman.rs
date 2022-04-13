@@ -9,6 +9,9 @@ pub struct RomanNumber {
 impl RomanNumber {
     /// Converts a string like "XLIX" to a RomanNumber instance
     pub fn from_string(s: &str) -> Result<Self, String> {
+        if s == "" {
+            return Err("Invalid input.".into());
+        }
         let s = s.to_lowercase();
         let mut prev_n = 0;
         let mut n_count = 0;
